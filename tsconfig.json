@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@usrahmedic/domain": ["packages/domain/src/index.ts"],
+      "@usrahmedic/domain/*": ["packages/domain/src/*"]
+    }
+  },
+  "include": [
+    "apps/platform/next-env.d.ts",
+    "apps/platform/src/**/*.ts",
+    "apps/platform/src/**/*.tsx",
+    "functions/**/*.ts",
+    "packages/domain/src/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", "apps/platform/out"]
+}

@@ -1,0 +1,16 @@
+name = "usrahmedic-platform"
+compatibility_date = "2026-05-01"
+pages_build_output_dir = "apps/platform/out"
+
+[vars]
+APP_ENV = "production"
+PUBLIC_APP_NAME = "UsrahMedic"
+ALLOWED_ORIGINS = "https://usrahmedic-platform.pages.dev"
+
+[[d1_databases]]
+binding = "USRAHMEDIC_DB"
+database_name = "usrahmedic-platform"
+database_id = "d169b4d8-ecf5-4f7d-8580-f3451db4a2e6"
+preview_database_id = "c1f4c0b9-eba2-4741-a175-3c0d285f9da5"
+migrations_dir = "migrations"
+migrations_table = "d1_migrations"

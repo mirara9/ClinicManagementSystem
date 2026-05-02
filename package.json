@@ -1,0 +1,43 @@
+{
+  "name": "usrahmedic-platform",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm --workspace @usrahmedic/platform run dev",
+    "build": "npm --workspace @usrahmedic/platform run build",
+    "build:cloudflare": "npm run build",
+    "preview:cloudflare": "npm run build:cloudflare && wrangler pages dev apps/platform/out",
+    "deploy:cloudflare": "npm run build:cloudflare && wrangler pages deploy apps/platform/out --project-name usrahmedic-platform",
+    "db:migrate:local": "wrangler d1 migrations apply usrahmedic-platform --local",
+    "db:migrate:remote": "wrangler d1 migrations apply usrahmedic-platform --remote",
+    "lint": "eslint --no-error-on-unmatched-pattern \"apps/platform/src/**/*.{ts,tsx}\" \"packages/domain/src/**/*.{ts,tsx}\" \"functions/**/*.js\" \"functions/**/*.ts\" \"types/**/*.d.ts\"",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@next/eslint-plugin-next": "^15.3.0",
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
+    "vitest": "^3.0.2",
+    "wrangler": "^4.87.0"
+  }
+}
