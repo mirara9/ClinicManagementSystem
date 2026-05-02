@@ -1,18 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap");
 
 :root {
-  --bg: #f7f4ee;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f0f7f5;
+  --surface-2: #eefcfb;
   --ink: #1e2a2f;
   --muted: #68757b;
-  --line: #dbe2df;
-  --primary: #047c74;
-  --primary-strong: #035f59;
+  --line: #e6eeee;
+  --primary: #ec137f;
+  --primary-strong: #be0f65;
   --brand-pink: #ec137f;
   --brand-pink-dark: #be0f65;
   --brand-teal: #008b83;
-  --accent: #c65337;
+  --accent: #31c6c5;
   --blue: #335f8f;
   --yellow: #f3c953;
   --danger: #b94040;
@@ -78,6 +78,17 @@ select {
   gap: 9px;
   min-width: 210px;
   font-weight: 800;
+}
+
+.brand-logo {
+  min-width: 160px;
+  width: 160px;
+}
+
+.brand-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .brand-symbol {
@@ -224,6 +235,7 @@ select {
   gap: clamp(28px, 6vw, 72px);
   min-height: calc(100vh - 160px);
   padding-bottom: 40px;
+  background: #fff;
 }
 
 .hero h1,
@@ -247,7 +259,7 @@ select {
   min-height: 520px;
   border-radius: 0;
   background:
-    linear-gradient(180deg, rgba(4, 124, 116, 0.1), rgba(198, 83, 55, 0.16)),
+    linear-gradient(180deg, rgba(49, 198, 197, 0.1), rgba(236, 19, 127, 0.12)),
     url("https://images.unsplash.com/photo-1584516150909-c43483ee7932?auto=format&fit=crop&w=1200&q=80");
   background-size: cover;
   background-position: center;
@@ -1033,7 +1045,7 @@ select {
 }
 
 .patient-page .brand {
-  min-width: 210px;
+  min-width: 160px;
 }
 
 .patient-page .surface-nav a {
@@ -1463,6 +1475,125 @@ html[lang="zh-Hans"] .patient-hero h1 {
   animation: spin 0.85s linear infinite;
 }
 
+/* Clinic brand alignment: white base with Usrah Medic pink and teal accents. */
+.topbar {
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom-color: rgba(49, 198, 197, 0.24);
+}
+
+.surface-nav a,
+.language-picker,
+.secondary-action {
+  border-color: rgba(49, 198, 197, 0.22);
+  background: #fff;
+}
+
+.surface-nav a.active,
+.primary-action {
+  border-color: var(--brand-pink);
+  background: var(--brand-pink);
+}
+
+.surface-nav .nav-contact {
+  border-color: rgba(49, 198, 197, 0.28);
+  background: #f0fcfb;
+}
+
+.pill {
+  border-color: rgba(49, 198, 197, 0.24);
+  background: #fff;
+}
+
+.pill.ok,
+.pill.warn {
+  border-color: rgba(236, 19, 127, 0.2);
+  background: #fff5fa;
+  color: var(--brand-pink-dark);
+}
+
+.page {
+  background: #fff;
+}
+
+.section.panel,
+.card,
+.panel,
+.service-card,
+.booking-steps article,
+.branch-band article {
+  background: #fff;
+  border-color: rgba(49, 198, 197, 0.18);
+  box-shadow: 0 12px 34px rgba(0, 139, 131, 0.07);
+}
+
+.patient-page {
+  --bg: #ffffff;
+  --surface-2: #f0fcfb;
+  --line: #d8f1ef;
+  background: #fff;
+}
+
+.patient-hero {
+  background:
+    linear-gradient(115deg, rgba(49, 198, 197, 0.12) 0%, #fff 42%, rgba(236, 19, 127, 0.08) 100%),
+    #fff;
+}
+
+.patient-page .topbar {
+  border-bottom-color: rgba(49, 198, 197, 0.26);
+}
+
+.patient-page .surface-nav a,
+.patient-page .language-picker {
+  border-color: rgba(49, 198, 197, 0.24);
+  background: #fff;
+}
+
+.patient-page .surface-nav a.active {
+  border-color: var(--brand-pink);
+  background: var(--brand-pink);
+}
+
+.brand-pill {
+  border-color: rgba(49, 198, 197, 0.28);
+  background: #f0fcfb;
+  color: #08756f;
+}
+
+.booking-card,
+.booking-section,
+.profile-strip,
+.booking-summary {
+  border-color: rgba(49, 198, 197, 0.2);
+  background: #fff;
+}
+
+.booking-card {
+  box-shadow: 0 24px 70px rgba(0, 139, 131, 0.1);
+}
+
+.booking-card-header .brand-pill,
+.profile-strip .brand-pill {
+  border-color: rgba(236, 19, 127, 0.22);
+  background: #fff5fa;
+  color: var(--brand-pink-dark);
+}
+
+.action-status.status-idle,
+.profile-strip {
+  background: #f2fcfb;
+}
+
+.booking-summary {
+  background: linear-gradient(180deg, #fff 0%, #fff7fb 100%);
+}
+
+.deposit-option.active,
+.booking-progress span.active {
+  border-color: rgba(236, 19, 127, 0.3);
+  background: #fff3f9;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -1562,5 +1693,9 @@ html[lang="zh-Hans"] .patient-hero h1 {
 
   .brand {
     min-width: 0;
+  }
+
+  .brand-logo {
+    width: 148px;
   }
 }

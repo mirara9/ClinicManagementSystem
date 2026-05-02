@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
 import { Activity, BarChart3, Building2, ClipboardList, Cloud, Construction, Pill, ShieldCheck } from "lucide-react";
 import { LocalizedPublicNav } from "./language";
@@ -11,12 +12,8 @@ const internalSurfaces = [
 
 export function Brand({ href = "/" }: { href?: string }) {
   return (
-    <Link className="brand" href={href}>
-      <span className="brand-symbol">U+</span>
-      <span className="brand-lockup">
-        <strong><span>USRAH</span> MEDIC</strong>
-        <small>Embrace your health</small>
-      </span>
+    <Link className="brand brand-logo" href={href} aria-label="Usrah Medic">
+      <Image src="/usrahmedic-logo.svg" alt="Usrah Medic" width={320} height={160} priority />
     </Link>
   );
 }
