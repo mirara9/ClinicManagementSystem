@@ -1,71 +1,48 @@
+"use client";
+
 import { Clock3, HeartPulse, MapPin, Phone, ShieldCheck, Sparkles, Stethoscope, WalletCards } from "lucide-react";
 import { branches } from "@usrahmedic/domain";
 import { PatientBookingAction } from "../../components/actions";
 import { PublicTopbar } from "../../components/chrome";
+import { usePatientPageCopy } from "../../components/language";
 
-const services = [
-  {
-    title: "Antenatal & Buku Pink",
-    detail: "Pemeriksaan ibu mengandung, follow-up berkala, urine/blood check, dan nasihat penjagaan.",
-    icon: HeartPulse
-  },
-  {
-    title: "2D hingga 5D Ultrasound",
-    detail: "Tempahan scan, laporan, dan pengesahan slot mengikut doktor serta cawangan.",
-    icon: Stethoscope
-  },
-  {
-    title: "Haji & Umrah",
-    detail: "Saringan kesihatan, vaksinasi, dan dokumentasi yang disusun untuk perjalanan.",
-    icon: ShieldCheck
-  }
-];
-
-const bookingSteps = [
-  "Pilih cawangan dan perkhidmatan",
-  "Semak butiran pesakit",
-  "Bayar deposit RM10",
-  "Tunggu pengesahan klinik"
-];
+const serviceIcons = [HeartPulse, Stethoscope, ShieldCheck] as const;
 
 export default function PatientPage() {
+  const copy = usePatientPageCopy();
+
   return (
     <div className="app-shell patient-page">
-      <PublicTopbar active="Tempah janji temu" />
+      <PublicTopbar active="booking" />
       <main>
         <section className="patient-hero">
           <div className="patient-hero-copy">
             <span className="pill brand-pill">
               <Sparkles size={15} aria-hidden="true" />
-              Tempahan online Usrah Medic
+              {copy.badge}
             </span>
-            <h1>Tempah slot klinik, sahkan butiran, bayar deposit RM10.</h1>
-            <p>
-              Pengalaman tempahan ini direka seperti laman rasmi Usrah Medic: jelas, mesra pesakit, dan terus kepada
-              tindakan. Pesakit yang log masuk akan melihat maklumat mereka diisi secara automatik sebelum bayaran.
-            </p>
+            <h1>{copy.heroTitle}</h1>
+            <p>{copy.heroText}</p>
             <div className="patient-trust-row" aria-label="Booking highlights">
-              <span><Clock3 size={17} aria-hidden="true" /> Cawangan 24 jam</span>
-              <span><WalletCards size={17} aria-hidden="true" /> Deposit RM10</span>
-              <span><MapPin size={17} aria-hidden="true" /> {branches.length} cawangan</span>
+              <span><Clock3 size={17} aria-hidden="true" /> {copy.open24}</span>
+              <span><WalletCards size={17} aria-hidden="true" /> {copy.deposit}</span>
+              <span><MapPin size={17} aria-hidden="true" /> {branches.length} {copy.branchCount}</span>
             </div>
-            <div className="patient-hero-photo" aria-label="Usrah Medic family clinic booking" />
+            <div className="patient-hero-photo" aria-label={copy.heroPhotoLabel} />
           </div>
           <PatientBookingAction />
         </section>
 
-        <section className="patient-section patient-process" aria-label="Booking process">
+        <section className="patient-section patient-process" aria-label={copy.processAria}>
           <div className="section-heading">
             <div>
-              <p className="pill brand-pill">Cara tempahan</p>
-              <h2>Ringkas untuk pesakit, lengkap untuk klinik</h2>
+              <p className="pill brand-pill">{copy.processBadge}</p>
+              <h2>{copy.processTitle}</h2>
             </div>
-            <p>
-              Deposit RM10 membantu mengurangkan no-show. Klinik masih perlu mengesahkan slot sebenar sebelum lawatan.
-            </p>
+            <p>{copy.processText}</p>
           </div>
           <div className="booking-steps">
-            {bookingSteps.map((step, index) => (
+            {copy.bookingSteps.map((step, index) => (
               <article key={step}>
                 <span>{index + 1}</span>
                 <strong>{step}</strong>
@@ -77,17 +54,14 @@ export default function PatientPage() {
         <section className="patient-section" aria-label="Popular services">
           <div className="section-heading">
             <div>
-              <p className="pill brand-pill">Perkhidmatan popular</p>
-              <h2>Perkhidmatan yang selalu ditempah</h2>
+              <p className="pill brand-pill">{copy.servicesBadge}</p>
+              <h2>{copy.servicesTitle}</h2>
             </div>
-            <p>
-              Fokus kepada servis yang pesakit benar-benar cari di laman klinik: ibu dan anak, ultrasound, saringan,
-              vaksinasi, dan rawatan keluarga.
-            </p>
+            <p>{copy.servicesText}</p>
           </div>
           <div className="grid grid-3">
-            {services.map((service) => {
-              const Icon = service.icon;
+            {copy.services.map((service, index) => {
+              const Icon = serviceIcons[index] ?? HeartPulse;
               return (
                 <article className="service-card" key={service.title}>
                   <Icon size={24} aria-hidden="true" />
@@ -99,7 +73,7 @@ export default function PatientPage() {
           </div>
         </section>
 
-        <section className="patient-section branch-band" aria-label="UsrahMedic branches">
+        <section className="patient-section branch-band" aria-label={copy.branchAria}>
           {branches.map((branch) => (
             <article key={branch.id}>
               <span className="pill brand-pill">{branch.hours}</span>

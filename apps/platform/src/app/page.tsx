@@ -1,25 +1,27 @@
+"use client";
+
 import Link from "next/link";
 import { CalendarCheck, MapPin, MessageCircle } from "lucide-react";
 import { branches, publicServices } from "@usrahmedic/domain";
 import { BranchBadge, PublicTopbar, SectionHeading, SystemNotice } from "../components/chrome";
+import { usePublicHomeCopy } from "../components/language";
 
 export default function PublicSitePage() {
+  const copy = usePublicHomeCopy();
+
   return (
     <div className="app-shell">
-      <PublicTopbar active="Laman utama" />
+      <PublicTopbar active="home" />
       <main className="page">
         <section className="hero">
           <div>
-            <SystemNotice />
-            <h1>UsrahMedic family clinic platform</h1>
-            <p>
-              A fast public website and connected clinic system for branch discovery, booking, antenatal care, ultrasound, panels,
-              chronic follow-up, and patient communication.
-            </p>
+            <SystemNotice label={copy.notice} />
+            <h1>{copy.heroTitle}</h1>
+            <p>{copy.heroText}</p>
             <div className="hero-actions">
               <Link className="primary-action" href="/patient">
                 <CalendarCheck size={18} aria-hidden="true" />
-                Book visit
+                {copy.bookVisit}
               </Link>
             </div>
           </div>
@@ -27,7 +29,7 @@ export default function PublicSitePage() {
         </section>
 
         <section className="section">
-          <SectionHeading title="Branches" text="Official branch data becomes structured content shared across public, admin, mobile, and insight surfaces." />
+          <SectionHeading title={copy.branchesTitle} text={copy.branchesText} />
           <div className="grid grid-3">
             {branches.map((branch) => (
               <article className="card" key={branch.id}>
@@ -48,7 +50,7 @@ export default function PublicSitePage() {
         </section>
 
         <section className="section">
-          <SectionHeading title="Patient journeys" text="The public site stays patient-friendly while feeding clean service, campaign, and booking data into operations." />
+          <SectionHeading title={copy.journeysTitle} text={copy.journeysText} />
           <div className="grid grid-3">
             {publicServices.map((service) => (
               <article className="card" key={service.id}>
@@ -58,11 +60,11 @@ export default function PublicSitePage() {
                 <div className="pill-row">
                   <span className="pill">
                     <MapPin size={14} aria-hidden="true" />
-                    Branch availability
+                    {copy.branchAvailability}
                   </span>
                   <span className="pill">
                     <MessageCircle size={14} aria-hidden="true" />
-                    WhatsApp fallback
+                    {copy.whatsappFallback}
                   </span>
                 </div>
               </article>
@@ -73,8 +75,8 @@ export default function PublicSitePage() {
         <section className="section panel">
           <div className="section-heading">
             <div>
-              <h2>Separate patient and clinic systems</h2>
-              <p>Patients use the public site and patient app. Staff, clinic operations, medicine, and owner insight remain separate authenticated workspaces.</p>
+              <h2>{copy.separateTitle}</h2>
+              <p>{copy.separateText}</p>
             </div>
           </div>
         </section>

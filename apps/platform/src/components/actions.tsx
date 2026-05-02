@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle, CalendarCheck, CheckCircle2, Download, LoaderCircle, LockKeyhole, PackagePlus, QrCode, ShieldCheck, UserPlus, WalletCards, WifiOff } from "lucide-react";
+import { usePatientBookingCopy } from "./language";
 
 type PanelKind = "admin" | "medicine" | "insight" | "patient" | "staff" | "claims";
 type ActionTone = "idle" | "loading" | "success" | "fallback" | "error";
@@ -443,8 +444,9 @@ export function InsightExportAction() {
 }
 
 export function PatientBookingAction() {
+  const copy = usePatientBookingCopy();
   const [branch, setBranch] = useState("Puncak Alam");
-  const [service, setService] = useState("Antenatal follow-up");
+  const [serviceIndex, setServiceIndex] = useState(0);
   const [appointmentDate, setAppointmentDate] = useState(defaultAppointmentDate());
   const [appointmentTime, setAppointmentTime] = useState("10:00");
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -454,22 +456,28 @@ export function PatientBookingAction() {
   const [nationalIdLast4, setNationalIdLast4] = useState(savedPatientProfile.nationalIdLast4);
   const [dateOfBirth, setDateOfBirth] = useState(savedPatientProfile.dateOfBirth);
   const [sex, setSex] = useState(savedPatientProfile.sex);
-  const [visitReason, setVisitReason] = useState("Antenatal follow-up and routine check.");
+  const [visitReason, setVisitReason] = useState<string>(copy.defaultReason);
   const [depositMethod, setDepositMethod] = useState<DepositMethod>("fpx");
   const [hasConsent, setHasConsent] = useState(true);
-  const [state, setState] = useState(initialState.patient);
+  const [state, setState] = useState<ActionState>({ ...copy.initial, tone: "idle" });
   const branchInfo = patientBranches.find((item) => item.name === branch) ?? patientBranches[0];
-  const selectedDepositMethod = depositLabel(depositMethod);
+  const service = copy.services[serviceIndex] ?? copy.services[0];
+  const selectedDepositMethod = copy.depositMethods[depositMethod];
+
+  useEffect(() => {
+    setState((current) => (current.tone === "idle" ? { ...copy.initial, tone: "idle" } : current));
+    setVisitReason((current) => (allDefaultVisitReasons.has(current) ? copy.defaultReason : current));
+  }, [copy]);
 
   return (
     <div className="booking-card" id="book">
       <div className="booking-card-header">
         <span className="pill brand-pill">
           <CalendarCheck size={15} aria-hidden="true" />
-          Borang tempahan
+          {copy.cardBadge}
         </span>
-        <h2>Maklumat janji temu</h2>
-        <p>Butiran ini digunakan oleh cawangan untuk mengesahkan slot dan menghubungi pesakit.</p>
+        <h2>{copy.cardTitle}</h2>
+        <p>{copy.cardText}</p>
       </div>
 
       <div className={`action-status status-${state.tone}`} aria-live="polite">
@@ -481,19 +489,19 @@ export function PatientBookingAction() {
       </div>
 
       <div className="booking-progress" aria-label="Booking progress">
-        <span className="active">Butiran</span>
-        <span>Slot</span>
-        <span>Deposit</span>
+        <span className="active">{copy.progress[0]}</span>
+        <span>{copy.progress[1]}</span>
+        <span>{copy.progress[2]}</span>
       </div>
 
       <div className="profile-strip">
         <div>
           <span className="pill brand-pill">
             <LockKeyhole size={14} aria-hidden="true" />
-            {isLoggedIn ? "Pesakit log masuk" : "Pesakit baharu"}
+            {isLoggedIn ? copy.loggedIn : copy.newPatient}
           </span>
-          <strong>{isLoggedIn ? "Maklumat profil telah diisi automatik" : "Isi butiran pesakit untuk tempahan ini"}</strong>
-          <p>{isLoggedIn ? "Pesakit masih boleh ubah nombor telefon, emel, atau butiran lawatan sebelum bayaran." : "Maklumat akan digunakan untuk pengesahan janji temu dan resit deposit."}</p>
+          <strong>{isLoggedIn ? copy.profileFilled : copy.profileEmpty}</strong>
+          <p>{isLoggedIn ? copy.profileFilledText : copy.profileEmptyText}</p>
         </div>
         <button
           className="secondary-action"
@@ -518,7 +526,7 @@ export function PatientBookingAction() {
             }
           }}
         >
-          {isLoggedIn ? "Tempah untuk pesakit lain" : "Guna profil log masuk"}
+          {isLoggedIn ? copy.bookOther : copy.useProfile}
         </button>
       </div>
 
@@ -529,14 +537,14 @@ export function PatientBookingAction() {
 
           if (!fullName.trim() || !phone.trim() || !appointmentDate || !appointmentTime || !hasConsent) {
             setState({
-              title: "Booking details incomplete",
-              detail: "Name, phone, visit date, time, and PDPA consent are required before collecting the RM10 deposit.",
+              title: copy.incompleteTitle,
+              detail: copy.incompleteDetail,
               tone: "error"
             });
             return;
           }
 
-          setState(loadingState.patient);
+          setState({ ...copy.loading, tone: "loading" });
           const result = await postCloudflareAction(endpointLabels.patient, {
             branchId: branchNameToId(branch),
             patient: {
@@ -566,13 +574,13 @@ export function PatientBookingAction() {
           });
 
           setState({
-            title: result.kind === "error" ? "Booking request was not accepted" : "Appointment request received",
+            title: result.kind === "error" ? copy.rejectedTitle : copy.acceptedTitle,
             detail:
               result.kind === "success"
-                ? `${service} di ${branch} direkodkan dengan deposit RM10 melalui ${selectedDepositMethod}.${formatRequestId(result.requestId)}`
+                ? `${copy.successDetail(service, branch, selectedDepositMethod)}${formatRequestId(result.requestId)}`
                 : result.kind === "fallback"
-                  ? `${service} di ${branch} sedia untuk pengesahan klinik dengan kutipan deposit RM10. ${result.reason}`
-                  : `${result.message}. Please retry when the API is healthy.`,
+                  ? copy.fallbackDetail(service, branch, localizedPatientFallbackReason(result.reason, copy))
+                  : `${result.message}. ${copy.retrySuffix}`,
             tone: result.kind === "success" ? "success" : result.kind === "fallback" ? "fallback" : "error"
           });
         }}
@@ -583,37 +591,37 @@ export function PatientBookingAction() {
               <div className="booking-section-heading">
                 <span>1</span>
                 <div>
-                  <h3>Butiran pesakit</h3>
-                  <p>Untuk pengesahan identiti, notifikasi, dan resit deposit.</p>
+                  <h3>{copy.patientSectionTitle}</h3>
+                  <p>{copy.patientSectionText}</p>
                 </div>
               </div>
               <div className="booking-grid">
                 <label className="field">
-                  <span>Nama penuh</span>
+                  <span>{copy.fields.fullName}</span>
                   <input value={fullName} onChange={(event) => setFullName(event.target.value)} placeholder="Nur Aina Binti Abdullah" required />
                 </label>
                 <label className="field">
-                  <span>No. telefon</span>
+                  <span>{copy.fields.phone}</span>
                   <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+60123456789" required />
                 </label>
                 <label className="field">
-                  <span>Email</span>
+                  <span>{copy.fields.email}</span>
                   <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="aina@example.com" />
                 </label>
                 <label className="field">
-                  <span>4 digit akhir IC/passport</span>
+                  <span>{copy.fields.idLast4}</span>
                   <input value={nationalIdLast4} onChange={(event) => setNationalIdLast4(event.target.value.slice(0, 4))} inputMode="numeric" placeholder="1234" />
                 </label>
                 <label className="field">
-                  <span>Tarikh lahir</span>
+                  <span>{copy.fields.dob}</span>
                   <input type="date" value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} />
                 </label>
                 <label className="field">
-                  <span>Jantina</span>
+                  <span>{copy.fields.sex}</span>
                   <select value={sex} onChange={(event) => setSex(event.target.value)}>
-                    <option value="female">Perempuan</option>
-                    <option value="male">Lelaki</option>
-                    <option value="unknown">Tidak dinyatakan</option>
+                    <option value="female">{copy.sex.female}</option>
+                    <option value="male">{copy.sex.male}</option>
+                    <option value="unknown">{copy.sex.unknown}</option>
                   </select>
                 </label>
               </div>
@@ -623,13 +631,13 @@ export function PatientBookingAction() {
               <div className="booking-section-heading">
                 <span>2</span>
                 <div>
-                  <h3>Slot dan perkhidmatan</h3>
-                  <p>Klinik akan hubungi jika slot pilihan perlu dilaraskan.</p>
+                  <h3>{copy.slotTitle}</h3>
+                  <p>{copy.slotText}</p>
                 </div>
               </div>
               <div className="booking-grid">
                 <label className="field">
-                  <span>Cawangan</span>
+                  <span>{copy.branch}</span>
                   <select value={branch} onChange={(event) => setBranch(event.target.value)}>
                     {patientBranches.map((item) => (
                       <option key={item.id}>{item.name}</option>
@@ -637,22 +645,19 @@ export function PatientBookingAction() {
                   </select>
                 </label>
                 <label className="field">
-                  <span>Perkhidmatan</span>
-                  <select value={service} onChange={(event) => setService(event.target.value)}>
-                    <option>Antenatal follow-up</option>
-                    <option>2D/3D/4D/5D Ultrasound</option>
-                    <option>GP consultation</option>
-                    <option>Haji and Umrah screening</option>
-                    <option>Saringan kesihatan</option>
-                    <option>Rawatan keluarga dan kanak-kanak</option>
+                  <span>{copy.service}</span>
+                  <select value={serviceIndex} onChange={(event) => setServiceIndex(Number.parseInt(event.target.value, 10))}>
+                    {copy.services.map((serviceOption, index) => (
+                      <option key={serviceOption} value={index}>{serviceOption}</option>
+                    ))}
                   </select>
                 </label>
                 <label className="field">
-                  <span>Tarikh janji temu</span>
+                  <span>{copy.appointmentDate}</span>
                   <input type="date" min={todayDateInputValue()} value={appointmentDate} onChange={(event) => setAppointmentDate(event.target.value)} required />
                 </label>
                 <label className="field">
-                  <span>Masa pilihan</span>
+                  <span>{copy.preferredTime}</span>
                   <select value={appointmentTime} onChange={(event) => setAppointmentTime(event.target.value)}>
                     <option value="09:00">9:00 AM</option>
                     <option value="10:00">10:00 AM</option>
@@ -662,8 +667,8 @@ export function PatientBookingAction() {
                   </select>
                 </label>
                 <label className="field field-wide">
-                  <span>Tujuan lawatan</span>
-                  <textarea value={visitReason} onChange={(event) => setVisitReason(event.target.value)} placeholder="Contoh: Follow-up antenatal, scan, demam anak, saringan haji/umrah" rows={3} />
+                  <span>{copy.fields.visitReason}</span>
+                  <textarea value={visitReason} onChange={(event) => setVisitReason(event.target.value)} placeholder={copy.visitPlaceholder} rows={3} />
                 </label>
               </div>
             </section>
@@ -672,11 +677,11 @@ export function PatientBookingAction() {
               <div className="booking-section-heading">
                 <span>3</span>
                 <div>
-                  <h3>Deposit RM10</h3>
-                  <p>Pilih kaedah bayaran deposit. Resit dan pengesahan akan dihantar selepas klinik menerima tempahan.</p>
+                  <h3>{copy.depositTitle}</h3>
+                  <p>{copy.depositText}</p>
                 </div>
               </div>
-              <div className="deposit-options" aria-label="Payment method">
+              <div className="deposit-options" aria-label={copy.paymentAria}>
                 {depositMethods.map((method) => (
                   <button
                     className={depositMethod === method.value ? "deposit-option active" : "deposit-option"}
@@ -685,47 +690,47 @@ export function PatientBookingAction() {
                     onClick={() => setDepositMethod(method.value)}
                   >
                     <WalletCards size={18} aria-hidden="true" />
-                    <span>{method.label}</span>
+                    <span>{copy.depositMethods[method.value]}</span>
                   </button>
                 ))}
               </div>
             </section>
           </div>
 
-          <aside className="booking-summary" aria-label="Booking summary">
+          <aside className="booking-summary" aria-label={copy.summaryAria}>
             <div className="summary-total">
-              <span>Deposit</span>
+              <span>{copy.depositLabel}</span>
               <strong>RM10.00</strong>
             </div>
             <dl>
               <div>
-                <dt>Cawangan</dt>
+                <dt>{copy.branch}</dt>
                 <dd>{branch}</dd>
               </div>
               <div>
-                <dt>Hotline</dt>
+                <dt>{copy.hotline}</dt>
                 <dd>{branchInfo.hotline}</dd>
               </div>
               <div>
-                <dt>Perkhidmatan</dt>
+                <dt>{copy.service}</dt>
                 <dd>{service}</dd>
               </div>
               <div>
-                <dt>Slot pilihan</dt>
+                <dt>{copy.selectedSlot}</dt>
                 <dd>{appointmentDate} / {appointmentTime}</dd>
               </div>
               <div>
-                <dt>Kaedah deposit</dt>
+                <dt>{copy.depositMethod}</dt>
                 <dd>{selectedDepositMethod}</dd>
               </div>
             </dl>
             <label className="checkbox-field">
               <input checked={hasConsent} onChange={(event) => setHasConsent(event.target.checked)} type="checkbox" />
-              <span>Saya bersetuju Usrah Medic menggunakan butiran ini untuk tempahan, pengendalian deposit, dan notifikasi pesakit.</span>
+              <span>{copy.consent}</span>
             </label>
             <button className="primary-action patient-submit" type="submit">
               <ShieldCheck size={18} aria-hidden="true" />
-              Bayar RM10 & hantar tempahan
+              {copy.submit}
             </button>
           </aside>
         </div>
@@ -966,6 +971,12 @@ const savedPatientProfile = {
   sex: "female"
 };
 
+const allDefaultVisitReasons = new Set([
+  "Antenatal follow-up and routine check.",
+  "产前复诊和常规检查。",
+  "கர்ப்ப follow-up மற்றும் வழக்கமான பரிசோதனை."
+]);
+
 const depositMethods: Array<{ label: string; value: DepositMethod }> = [
   { label: "FPX online banking", value: "fpx" },
   { label: "eWallet / DuitNow", value: "ewallet" },
@@ -994,8 +1005,8 @@ function combineAppointmentDateTime(date: string, time: string) {
   return new Date(`${date}T${time}:00+08:00`);
 }
 
-function depositLabel(method: DepositMethod) {
-  return depositMethods.find((item) => item.value === method)?.label ?? "payment";
+function localizedPatientFallbackReason(reason: string, copy: ReturnType<typeof usePatientBookingCopy>) {
+  return reason === fallbackReasons.offline ? copy.fallbackOffline : copy.fallbackEndpoint;
 }
 
 function claimModeLabel(mode: string) {

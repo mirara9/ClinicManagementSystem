@@ -135,6 +135,7 @@ select {
 }
 
 .surface-nav a,
+.language-picker,
 .icon-button,
 .primary-action,
 .secondary-action {
@@ -148,6 +149,31 @@ select {
   padding: 0 12px;
   background: var(--surface);
   color: var(--ink);
+  white-space: nowrap;
+}
+
+.language-picker {
+  min-width: 196px;
+  color: var(--primary-strong);
+  font-weight: 800;
+}
+
+.language-picker select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 800;
+  outline: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
 
@@ -1062,6 +1088,12 @@ select {
   line-height: 1.05;
 }
 
+html[lang="ta"] .patient-hero h1,
+html[lang="zh-Hans"] .patient-hero h1 {
+  font-size: clamp(2rem, 3.7vw, 3.25rem);
+  line-height: 1.12;
+}
+
 .patient-hero p {
   max-width: 640px;
   margin: 0;
@@ -1494,6 +1526,13 @@ select {
   }
 
   .surface-nav {
+    justify-content: flex-start;
+  }
+
+  .surface-nav a,
+  .language-picker,
+  .surface-nav .nav-contact {
+    width: 100%;
     justify-content: flex-start;
   }
 

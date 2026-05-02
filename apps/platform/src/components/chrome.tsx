@@ -1,11 +1,7 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { Activity, BarChart3, Building2, CalendarCheck, ClipboardList, Cloud, Construction, Home, Phone, Pill, ShieldCheck } from "lucide-react";
-
-const publicSurfaces = [
-  { href: "/", label: "Laman utama", icon: Home },
-  { href: "/patient", label: "Tempah janji temu", icon: CalendarCheck }
-];
+import { Activity, BarChart3, Building2, ClipboardList, Cloud, Construction, Pill, ShieldCheck } from "lucide-react";
+import { LocalizedPublicNav } from "./language";
 
 const internalSurfaces = [
   { href: "/admin", label: "Admin", icon: ClipboardList },
@@ -25,25 +21,11 @@ export function Brand({ href = "/" }: { href?: string }) {
   );
 }
 
-export function PublicTopbar({ active = "Public" }: { active?: string }) {
+export function PublicTopbar({ active = "home" }: { active?: "home" | "booking" }) {
   return (
     <header className="topbar">
       <Brand />
-      <nav className="surface-nav" aria-label="Platform surfaces">
-        {publicSurfaces.map((surface) => {
-          const Icon = surface.icon;
-          return (
-            <Link className={surface.label === active ? "active" : ""} href={surface.href} key={surface.href}>
-              <Icon size={16} aria-hidden="true" />
-              {surface.label}
-            </Link>
-          );
-        })}
-        <a className="nav-contact" href="tel:+601135664998">
-          <Phone size={16} aria-hidden="true" />
-          011-3566 4998
-        </a>
-      </nav>
+      <LocalizedPublicNav active={active} />
     </header>
   );
 }
@@ -143,11 +125,11 @@ export function SectionHeading({ title, text }: { title: string; text: string })
   );
 }
 
-export function SystemNotice() {
+export function SystemNotice({ label = "Foundation preview" }: { label?: string }) {
   return (
     <span className="pill warn">
       <Construction size={14} aria-hidden="true" />
-      Foundation preview
+      {label}
     </span>
   );
 }
